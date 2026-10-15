@@ -72,3 +72,16 @@ def test_structural_problem():
         "Possible avec « charge_engagements › maximum » = 3 au lieu de 2 (sur 7 jours)."
     ]
     assert "trop contraignants" in diagnostic.report(diagnosis)
+
+
+def test_required_pair_contradictions():
+    season = make_season(
+        rencontres_imposees=[["A", "B"], ["A", "C"], ["A", "D"]],
+        rencontres_interdites=[["A", "B"]],
+    )
+    checks = diagnostic.quick_checks(season)
+    assert "A et B doivent s'affronter, mais cette rencontre est interdite." in checks
+    assert "A a 3 rencontres imposées, plus que ses 2 matchs." in checks
+    options = diagnostic.minimal_relaxations(season, FAST)
+    # Dropping the required A–B meeting solves both problems at once.
+    assert [s.description for s in options[0]] == ["A et B doivent s'affronter"]

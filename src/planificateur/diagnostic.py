@@ -3,8 +3,8 @@
 Three levels, from the most precise to the most general:
 
 1. quick checks that need no solver (a date without enough available teams…);
-2. relaxation: local constraints (unavailability, forced presence, forbidden pair,
-   fixed match) may be dropped, and the solver drops as few as possible. Other
+2. relaxation: local constraints (unavailability, forced presence, forbidden or
+   required pair, fixed match) may be dropped, and the solver drops as few as possible. Other
    sets of the same size are then searched, to offer alternatives;
 3. if nothing local helps, the season parameters themselves are too strict:
    the load limits are loosened one step at a time.
@@ -84,6 +84,16 @@ def quick_checks(season: Season) -> list[str]:
                     f"{team} doit jouer le {when}, mais le match fixé ce jour-là est {a} – {b}."
                 )
 
+    for a, b in sorted(season.required_pairs & season.forbidden_pairs):
+        problems.append(f"{a} et {b} doivent s'affronter, mais cette rencontre est interdite.")
+    for team in season.teams:
+        required = [p for p in season.required_pairs if team in p]
+        if len(required) > season.matches_per_team:
+            problems.append(
+                f"{team} a {len(required)} rencontres imposées, plus que ses "
+                f"{season.matches_per_team} matchs."
+            )
+
     problems += _window_checks(
         season, season.engagement_load, 2 * season.matches_per_date + 1, "engagements"
     )
@@ -124,6 +134,9 @@ def without(season: Season, dropped: list[modele.SoftConstraint]) -> Season:
         forced=frozenset(x for x in season.forced if ("presence", x) not in keys),
         forbidden_pairs=frozenset(
             x for x in season.forbidden_pairs if ("rencontre_interdite", x) not in keys
+        ),
+        required_pairs=frozenset(
+            x for x in season.required_pairs if ("rencontre_imposee", x) not in keys
         ),
         fixed_matches=tuple(x for x in season.fixed_matches if ("match_fixe", x) not in keys),
     )
@@ -212,7 +225,7 @@ def report(diagnosis: Diagnosis) -> str:
     else:
         lines.append(
             "Même en ignorant toutes les indisponibilités, présences imposées, rencontres "
-            "interdites et matchs fixés, aucun calendrier n'existe : les dates ou les paramètres "
+            "interdites ou imposées et matchs fixés, aucun calendrier n'existe : les dates ou les paramètres "
             "de la saison sont trop contraignants."
         )
         lines += [f"  - {s}" for s in diagnosis.structural]

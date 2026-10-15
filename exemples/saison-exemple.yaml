@@ -79,5 +79,8 @@ presences_imposees:
 # Paires qui ne doivent pas s'affronter.
 rencontres_interdites: []
 
+# Paires qui doivent s'affronter une fois (date choisie par le solveur).
+rencontres_imposees: []
+
 # Matchs déjà décidés, repris tels quels (organisatrice facultative).
 matchs_fixes: []

@@ -99,3 +99,8 @@ def test_engagement_load_violation():
     problems = check(season, VALID)
     assert "A a 2 engagements en moins de 8 jours : 01/09/2025, 08/09/2025." in problems
     assert check(make_season({"charge_engagements": {"maximum": 1, "jours": 7}}), VALID) == []
+
+
+def test_required_pair_violation():
+    season = make_season(rencontres_imposees=[["C", "A"], ["A", "B"]])
+    assert check(season, VALID) == ["A et C devaient s'affronter."]

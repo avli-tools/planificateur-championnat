@@ -77,7 +77,7 @@ def build(season: Season, relax_local: bool = False) -> SeasonModel:
     """Build the model with every mandatory constraint.
 
     With ``relax_local``, the local constraints (unavailability, forced presence,
-    forbidden pair, fixed match) are only enforced when their ``kept`` literal is
+    forbidden or required pair, fixed match) are only enforced when their ``kept`` literal is
     true, so that the diagnostic can find which ones to drop.
     """
     model = cp_model.CpModel()
@@ -164,6 +164,12 @@ def build(season: Season, relax_local: bool = False) -> SeasonModel:
         p = pair_index[team_index[a], team_index[b]]
         enforce = local("rencontre_interdite", (a, b), f"{a} et {b} ne doivent pas s'affronter")
         model.add(sum(match[p, d] for d in range(n_dates)) == 0).only_enforce_if(enforce)
+
+    # (5b) Required pairs meet once, on a date chosen by the solver.
+    for a, b in sorted(season.required_pairs, key=lambda x: (team_index[x[0]], team_index[x[1]])):
+        p = pair_index[team_index[a], team_index[b]]
+        enforce = local("rencontre_imposee", (a, b), f"{a} et {b} doivent s'affronter")
+        model.add(sum(match[p, d] for d in range(n_dates)) == 1).only_enforce_if(enforce)
 
     # (6) Fixed matches (and organizer, if given).
     for fixed in season.fixed_matches:

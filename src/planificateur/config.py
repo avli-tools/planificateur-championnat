@@ -27,6 +27,7 @@ _TOP_LEVEL_KEYS = (
     "indisponibilites",
     "presences_imposees",
     "rencontres_interdites",
+    "rencontres_imposees",
     "matchs_fixes",
 )
 _PARAMETER_KEYS = (
@@ -76,6 +77,7 @@ class Season:
     unavailable: frozenset[tuple[str, dt.date]] = field(default_factory=frozenset)
     forced: frozenset[tuple[str, dt.date]] = field(default_factory=frozenset)
     forbidden_pairs: frozenset[tuple[str, str]] = field(default_factory=frozenset)
+    required_pairs: frozenset[tuple[str, str]] = field(default_factory=frozenset)
     fixed_matches: tuple[FixedMatch, ...] = ()
 
     def pair(self, a: str, b: str) -> tuple[str, str]:
@@ -157,7 +159,10 @@ class _Parser:
         params = self._parse_parameters(self.data.get("parametres"))
         unavailable = self._parse_by_date(self.data.get("indisponibilites"), "indisponibilites")
         forced = self._parse_by_date(self.data.get("presences_imposees"), "presences_imposees")
-        forbidden = self._parse_forbidden(self.data.get("rencontres_interdites"))
+        forbidden = self._parse_pairs(
+            self.data.get("rencontres_interdites"), "rencontres_interdites"
+        )
+        required = self._parse_pairs(self.data.get("rencontres_imposees"), "rencontres_imposees")
         fixed = self._parse_fixed(self.data.get("matchs_fixes"), params.get("matchs_par_date"))
 
         if self.errors:
@@ -178,7 +183,7 @@ class _Parser:
             forced=frozenset(forced),
             fixed_matches=tuple(fixed),
         )
-        return _with_pairs(season, forbidden)
+        return _with_pairs(season, forbidden, required)
 
     # -- helpers ---------------------------------------------------------------
 
@@ -364,10 +369,10 @@ class _Parser:
             return None
         return a, b
 
-    def _parse_forbidden(self, value: Any) -> list[tuple[str, str]]:
+    def _parse_pairs(self, value: Any, section: str) -> list[tuple[str, str]]:
         pairs = []
-        for i, item in enumerate(self._list(value, "rencontres_interdites"), start=1):
-            pair = self._parse_teams_pair(item, f"« rencontres_interdites » (n° {i})")
+        for i, item in enumerate(self._list(value, section), start=1):
+            pair = self._parse_teams_pair(item, f"« {section} » (n° {i})")
             if pair is not None:
                 pairs.append(pair)
         return pairs
@@ -420,13 +425,16 @@ class _Parser:
         return fixed
 
 
-def _with_pairs(season: Season, forbidden: list[tuple[str, str]]) -> Season:
-    """Store forbidden pairs and fixed-match teams in canonical order."""
+def _with_pairs(
+    season: Season, forbidden: list[tuple[str, str]], required: list[tuple[str, str]]
+) -> Season:
+    """Store forbidden pairs, required pairs and fixed-match teams in canonical order."""
     fixed = tuple(
         FixedMatch(m.date, season.pair(*m.teams), m.organizer) for m in season.fixed_matches
     )
     return replace(
         season,
         forbidden_pairs=frozenset(season.pair(a, b) for a, b in forbidden),
+        required_pairs=frozenset(season.pair(a, b) for a, b in required),
         fixed_matches=fixed,
     )

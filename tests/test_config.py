@@ -148,3 +148,11 @@ def test_duplicate_yaml_key_is_an_error(tmp_path):
     path.write_text("indisponibilites:\n  01/09/2025: [A]\n  01/09/2025: [B]\n", encoding="utf-8")
     with pytest.raises(config.ConfigError, match="répétée"):
         config.load(path)
+
+
+def test_required_pairs():
+    season = make_season(rencontres_imposees=[["C", "A"]])
+    assert season.required_pairs == {("A", "C")}
+    data = make_data(rencontres_imposees=[["A", "Équipe Z"]])
+    (error,) = errors_of(data)
+    assert "« rencontres_imposees » (n° 1)" in error

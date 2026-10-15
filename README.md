@@ -30,6 +30,7 @@ Un calendrier qui ne respecte pas ces règles est refusé.
 | Indisponibilités      | Une équipe indisponible à une date n'a aucun engagement ce jour-là.                               |
 | Présences imposées    | Une équipe peut être obligée de jouer à une date (p. ex. un lieu précis).                         |
 | Rencontres interdites | Certaines paires d'équipes ne doivent pas s'affronter.                                            |
+| Rencontres imposées   | Certaines paires d'équipes doivent s'affronter une fois ; le solveur choisit la date.             |
 | Matchs déjà fixés     | Des matchs décidés à l'avance (paire + date, organisatrice facultative) sont repris tels quels.   |
 | Organisation          | L'équipe qui organise ne joue pas ce soir-là, et chaque équipe organise autant de fois.           |
 | Charge d'engagements  | Au plus 3 engagements par équipe sur toute période de 7 jours (configurable).                     |
@@ -51,7 +52,7 @@ Parmi les calendriers valides, on cherche le meilleur. Les objectifs sont trait�
 L'outil ne se contente pas de répondre « impossible » :
 
 1. il signale les contradictions évidentes : une date où trop peu d'équipes sont disponibles, une présence imposée sur une indisponibilité, des dates trop rapprochées pour le nombre d'équipes… ;
-2. il cherche le **plus petit nombre de contraintes à ignorer** (indisponibilités, présences imposées, rencontres interdites, matchs fixés) pour qu'un calendrier existe, et propose jusqu'à trois possibilités. Exemple : « Il suffit d'ignorer 1 contrainte : 1. Équipe A indisponible le 04/12/2025 ; 2. Équipe E indisponible le 04/12/2025… » ;
+2. il cherche le **plus petit nombre de contraintes à ignorer** (indisponibilités, présences imposées, rencontres interdites ou imposées, matchs fixés) pour qu'un calendrier existe, et propose jusqu'à trois possibilités. Exemple : « Il suffit d'ignorer 1 contrainte : 1. Équipe A indisponible le 04/12/2025 ; 2. Équipe E indisponible le 04/12/2025… » ;
 3. il écrit un **calendrier provisoire** avec la première possibilité, clairement marqué comme tel ;
 4. si même en ignorant toutes ces contraintes rien n'est possible, ce sont les dates ou les paramètres qui posent problème : il indique quel plafond de charge assouplir.
 
@@ -100,6 +101,9 @@ presences_imposees:                # date → équipes qui doivent jouer
 
 rencontres_interdites:
   - [Équipe A, Équipe D]
+
+rencontres_imposees:               # se rencontrent une fois, date libre
+  - [Équipe B, Équipe E]
 
 matchs_fixes:
   - date: 04/12/2025

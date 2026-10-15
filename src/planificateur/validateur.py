@@ -116,7 +116,7 @@ def check(season: Season, fixtures: list[Fixture]) -> list[str]:
             if count > 1:
                 problems.append(f"{when} : {team} joue {count} matchs.")
 
-    # Pairs meet at most once; forbidden pairs never.
+    # Pairs meet at most once; forbidden pairs never; required pairs once.
     meetings = Counter(frozenset((f.team1, f.team2)) for f in fixtures)
     for pair, count in meetings.items():
         a, b = sorted(pair, key=season.teams.index) if pair <= known else sorted(pair)
@@ -125,6 +125,9 @@ def check(season: Season, fixtures: list[Fixture]) -> list[str]:
     for a, b in sorted(season.forbidden_pairs):
         if meetings[frozenset((a, b))]:
             problems.append(f"{a} et {b} s'affrontent alors que c'est interdit.")
+    for a, b in sorted(season.required_pairs):
+        if not meetings[frozenset((a, b))]:
+            problems.append(f"{a} et {b} devaient s'affronter.")
 
     summary = summarize(season, fixtures)
     for t in summary.teams:

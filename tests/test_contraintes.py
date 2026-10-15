@@ -187,3 +187,34 @@ def test_match_load_respected():
 def test_match_load_too_strict():
     season = make_season({"charge_matchs": {"maximum": 1, "jours": 31}})
     assert is_feasible(season, FAST) is False
+
+
+# (5b) Required pairs ---------------------------------------------------------------------
+
+
+def test_required_pairs_meet_once():
+    season = make_season(rencontres_imposees=[["A", "C"], ["E", "B"]])
+    fixtures = solved(season)
+    meetings = [{f.team1, f.team2} for f in fixtures]
+    assert meetings.count({"A", "C"}) == 1
+    assert meetings.count({"B", "E"}) == 1
+
+
+def test_required_pair_with_no_common_free_date():
+    # A and C are never both available on the same date.
+    season = make_season(
+        rencontres_imposees=[["A", "C"]],
+        indisponibilites={
+            "01/09/2025": ["A"],
+            "08/09/2025": ["A"],
+            "15/09/2025": ["C"],
+            "22/09/2025": ["C"],
+            "29/09/2025": ["C"],
+        },
+    )
+    assert is_feasible(season, FAST) is False
+
+
+def test_too_many_required_pairs_for_one_team():
+    season = make_season(rencontres_imposees=[["A", "B"], ["A", "C"], ["A", "D"]])
+    assert is_feasible(season, FAST) is False
