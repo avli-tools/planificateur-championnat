@@ -1,0 +1,14 @@
+# Données réelles des saisons (noms d'équipes, indisponibilités) : jamais dans le dépôt public
+saisons/
+
+# Prompt de démarrage (contient des données réelles)
+prompt-demarrage.md
+
+# Python / uv
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+dist/
+build/

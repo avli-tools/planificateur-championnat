@@ -1,0 +1,83 @@
+# Exemple anonymisé : structure de la saison 2025-2026 (dates, indisponibilités,
+# présences imposées) avec des noms d'équipes fictifs.
+saison: Ligue A — exemple anonymisé
+
+equipes:
+  - Équipe A
+  - Équipe B
+  - Équipe C
+  - Équipe D
+  - Équipe E
+  - Équipe F
+  - Équipe G
+  - Équipe H
+  - Équipe I
+  - Équipe J
+  - Équipe K
+
+parametres:
+  matchs_par_equipe: 4
+  matchs_par_date: 1
+  organisations_par_equipe: 2
+  # Plafonds obligatoires : au plus « maximum » sur toute période de « jours » jours consécutifs.
+  # Les écarts entre matchs et entre engagements sont ensuite maximisés par le solveur.
+  charge_matchs:
+    maximum: 2
+    jours: 31
+  charge_engagements:               # engagement = jouer ou organiser
+    maximum: 3
+    jours: 7
+
+dates:
+  - 27/11/2025
+  - 04/12/2025
+  - 05/12/2025
+  - 06/12/2025
+  - 08/01/2026
+  - 10/01/2026
+  - 22/01/2026
+  - 24/01/2026
+  - 29/01/2026
+  - 31/01/2026
+  - 02/02/2026
+  - 03/02/2026
+  - 05/02/2026
+  - 26/02/2026
+  - 05/03/2026
+  - 12/03/2026
+  - 13/03/2026
+  - 19/03/2026
+  - 21/03/2026
+  - 28/03/2026
+  - 23/04/2026
+  - 30/04/2026
+
+# Date → équipes qui ne peuvent ni jouer ni organiser ce jour-là.
+indisponibilites:
+  27/11/2025: [Équipe A, Équipe B, Équipe I]
+  04/12/2025: [Équipe I, Équipe E]
+  05/12/2025: [Équipe A, Équipe G, Équipe B]
+  06/12/2025: [Équipe A, Équipe G, Équipe B]
+  10/01/2026: [Équipe A]
+  24/01/2026: [Équipe A]
+  29/01/2026: [Équipe B, Équipe K, Équipe E]
+  31/01/2026: [Équipe A, Équipe K, Équipe E]
+  02/02/2026: [Équipe K]
+  03/02/2026: [Équipe I, Équipe K]
+  05/03/2026: [Équipe I]
+  13/03/2026: [Équipe A]
+  19/03/2026: [Équipe G]
+  28/03/2026: [Équipe G, Équipe H]
+  23/04/2026: [Équipe G]
+  30/04/2026: [Équipe B]
+
+# Date → équipes qui doivent jouer ce jour-là.
+presences_imposees:
+  29/01/2026: [Équipe C]
+  31/01/2026: [Équipe I]
+
+# Paires qui ne doivent pas s'affronter.
+rencontres_interdites: []
+
+# Matchs déjà décidés, repris tels quels (organisatrice facultative).
+matchs_fixes: []
